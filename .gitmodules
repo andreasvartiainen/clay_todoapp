@@ -1,0 +1,3 @@
+[submodule "ClayMan"]
+	path = ClayMan
+	url = https://github.com/TimothyHoytBSME/ClayMan.git
