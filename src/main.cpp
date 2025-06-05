@@ -1,5 +1,8 @@
 #include "../../ClayMan/clayman.hpp"
 #include "../../ClayMan/include/raylib/clay_renderer_raylib.c"
+#include <array>
+#include <string>
+#include <vector>
 
 //Your project's main entry
 int main() {
@@ -48,31 +51,82 @@ int main() {
 
 		//Prep for layout
 		clayMan.beginLayout();
-		
-		//Example full-window parent container
+
+		std::vector<std::string> stringList = {};
+		stringList.emplace_back("First");
+		stringList.emplace_back("Second");
+		stringList.emplace_back("Third");
+		stringList.emplace_back("Fourth");
+
 		clayMan.element(
-			{ //Configure element
-				.id = clayMan.hashID("YourElementID"),
+			{
+				.id = clayMan.hashID("MyElementID"),
 				.layout = {
-					.sizing = clayMan.expandXY(), 
-					.padding = clayMan.padAll(16), 
-					.childGap = 16, 
+					.sizing = clayMan.expandXY(),
+					.padding = CLAY_PADDING_ALL(8),
+					.childGap = 8,
 					.layoutDirection = CLAY_TOP_TO_BOTTOM
 				},
-				.backgroundColor = {50,50,50,255}
+				.backgroundColor = {255,0,0,255}
 			},
-			[&]{ //Child elements in here
-				clayMan.textElement(
-					"Here is some text",
-					{ //Configure text
-						.textColor = {255,255,255,255},
-						.fontId = 0, 
-						.fontSize = 16
-					}
-				);
-			}
+			[&]{
+				clayMan.element({
+					.id = clayMan.hashID("NavElement"),
+					.layout = {
+						.sizing = clayMan.expandXfixedY(100),
+						.childGap = 16,
+						.layoutDirection = CLAY_TOP_TO_BOTTOM,
+					},
+					.backgroundColor = {127,0,0,255},
+					.cornerRadius = CLAY_CORNER_RADIUS(10),
+					},[&]{
+					 //Empty
+				});
+				clayMan.element({
+					.id = clayMan.hashID("SubElement"),
+					.layout = {
+						.sizing = clayMan.expandXY(),
+						.childGap = 8,
+						.layoutDirection = CLAY_LEFT_TO_RIGHT,
+					},
+					.backgroundColor = {127,0,0,0},
+					.cornerRadius = CLAY_CORNER_RADIUS(10),
+					},[&]{
+					clayMan.element({
+						.id = clayMan.hashID("SideBarElement"),
+						.layout = {
+							.sizing = clayMan.expandYfixedX(300),
+							.childGap = 16,
+							.layoutDirection = CLAY_TOP_TO_BOTTOM,
+						},
+						.backgroundColor = {127,0,0,255},
+						.cornerRadius = CLAY_CORNER_RADIUS(10),
+						},[&]{
+							for (const auto &string : stringList) {
+								clayMan.textElement(string, 
+								{
+								.textColor = {255,255,255,255},
+								.fontId = 0,
+								.fontSize = 30
+								});
+							}
+					});
+					clayMan.element({
+						.id = clayMan.hashID("ContentElement"),
+						.layout = {
+							.sizing = clayMan.expandXY(),
+							.childGap = 16,
+							.layoutDirection = CLAY_TOP_TO_BOTTOM,
+						},
+						.backgroundColor = {127,0,0,255},
+						.cornerRadius = CLAY_CORNER_RADIUS(10),
+						},[&]{
+					});
+				});
+				}
 		);
 		
+
 		//Pass your layout to the manager to get the render commands
 		Clay_RenderCommandArray renderCommands = clayMan.endLayout(); 
 

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(clayProject)
+project(clayTodoApp)
 
 # C++ standard to 23 to support std::print/ln()
 set(CMAKE_CXX_STANDARD 23)
 # add warnings as errors -Werror not in this because it causes catch2 to fail
-add_compile_options(-Wall -Weffc++ -Wextra -Wconversion -Wsign-conversion)
+add_compile_options(-Wall -Werror)
 
 include(FetchContent)
 
@@ -37,5 +37,6 @@ target_link_libraries(${PROJECT_NAME} raylib)
 include_directories(
 	PRIVATE
 		${INCLUDE_DIRS}
+		ClayMan
 )
 
