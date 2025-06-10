@@ -20,6 +20,8 @@ set(BUILD_EXAMPLES OFF CACHE INTERNAL "")
 
 FetchContent_MakeAvailable(raylib)
 
+find_package(SQLite3 REQUIRED)
+
 # globbing the sources in src folder to not require manual adding of .cpp files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 list(APPEND SOURCES "ClayMan/clayman.cpp")
@@ -32,11 +34,12 @@ set(INCLUDE_DIRS
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
-target_link_libraries(${PROJECT_NAME} raylib)
+target_link_libraries(${PROJECT_NAME} raylib sqlite3)
 
 include_directories(
 	PRIVATE
 		${INCLUDE_DIRS}
 		ClayMan
+		ClayMan/include
 )
 
