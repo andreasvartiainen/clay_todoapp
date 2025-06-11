@@ -52,25 +52,60 @@ struct ReusableElements {
 		ReusableElements() = default;
 };
 
+ReusableElements reusableElements = ReusableElements::getInstance();
+
 struct ModularElements {
 	static ModularElements& getInstance() {
 		static ModularElements instance;
 		return instance;
 	}
 
+	// add todo elements from database call
+	
+	// for each element draw todo container one more than what we 
+	// received from the database
+	
 	void todoElement() {
-
+		clayMan.element({
+			.id = clayMan.hashID("todoContainer"),
+			.layout = {
+				.sizing = clayMan.expandXfixedY(50),
+				.padding = CLAY_PADDING_ALL(8),
+				.layoutDirection = CLAY_LEFT_TO_RIGHT,
+			},
+			.backgroundColor = BACKGROUND_COLOR,
+			.cornerRadius = Clay_CornerRadius(4,4,4,4),
+		},[&](){
+			clayMan.element({.layout = {.sizing = clayMan.expandX()}});
+			reusableElements.button("Complete");
+		});
+	}
+	// each todo element is a line with complete button
+	
+	// last todo element should be a line with only add button
+	void EmptyTodoElement() {
+		clayMan.element({
+			.id = clayMan.hashID("todoContainer"),
+			.layout = {
+				.sizing = clayMan.expandXfixedY(50),
+				.padding = CLAY_PADDING_ALL(8),
+				.layoutDirection = CLAY_LEFT_TO_RIGHT,
+			},
+			.backgroundColor = BACKGROUND_COLOR,
+			.cornerRadius = Clay_CornerRadius(4,4,4,4),
+		},[&](){
+			clayMan.element({.layout = {.sizing = clayMan.expandX()}});
+			reusableElements.button("Add");
+		});
 	}
 
 	private:
 		ModularElements() = default;
 };
 
+ModularElements modularElements = ModularElements::getInstance();
 
 void mainLayout() {
-		ReusableElements reusableElements = ReusableElements::getInstance();
-		// ModularElements modularElements = ModularElements::getInstance();
-
 		// body element
 		clayMan.element({
 			.id = clayMan.hashID("body"),
@@ -117,13 +152,16 @@ void mainLayout() {
 							.height = (Clay_SizingAxis { .size = { .minMax = {}}, .type = CLAY__SIZING_TYPE_GROW})},
 						.padding = CLAY_PADDING_ALL(8),
 						.childGap = 8,
+						.layoutDirection = CLAY_TOP_TO_BOTTOM,
 					},
 					.backgroundColor = FOREGROUND_COLOR,
 					.cornerRadius = Clay_CornerRadius{4,4,4,4},
 			},[&](){
 				// draw child elements if animation is finished
 				if (appData.isAnimationFinished()) {
-					std::println("ANIMATION FINISHED");
+					if (appData.selectedElement == "Todo") {
+						modularElements.todoElement();
+					}
 				}
 			});
 		});

@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <iterator>
 #include <string>
 #include <print>
 
@@ -11,6 +12,9 @@
 int main() {
 	initRaylib();
 
+	// database.insertUser();
+	database.insertTodo("this is is a shit todo message!");
+	database.fetchTodoTable();
 	//Raylib render loop
 	while (!WindowShouldClose()) { 
 		 
