@@ -13,8 +13,13 @@ int main() {
 	initRaylib();
 
 	// database.insertUser();
-	database.insertTodo("this is is a shit todo message!");
-	database.fetchTodoTable();
+	// database.insertTodo("shit todo message");
+	// database.fetchTodoTable();
+
+	for (const auto &todo :todoList) {
+		std::println("{} {} {}", todo.ID, todo.content, todo.completed);
+	}
+	
 	//Raylib render loop
 	while (!WindowShouldClose()) { 
 		 

@@ -10,7 +10,7 @@
 #include <string_view>
 
 // function pointer type for callback parameter is elementID
-using func_t = void(*)(const std::string_view);
+using func_t = void(*)(const std::string);
 
 struct ReusableElements {
 	static ReusableElements& getInstance() {
@@ -65,9 +65,9 @@ struct ModularElements {
 	// for each element draw todo container one more than what we 
 	// received from the database
 	
-	void todoElement() {
+	void todoElement(const int &todoID, const std::string &todoMessage, bool completed) {
 		clayMan.element({
-			.id = clayMan.hashID("todoContainer"),
+			.id = clayMan.hashID("todoContainer" + std::to_string(todoID)),
 			.layout = {
 				.sizing = clayMan.expandXfixedY(50),
 				.padding = CLAY_PADDING_ALL(8),
@@ -76,8 +76,17 @@ struct ModularElements {
 			.backgroundColor = BACKGROUND_COLOR,
 			.cornerRadius = Clay_CornerRadius(4,4,4,4),
 		},[&](){
+				clayMan.textElement( todoMessage, {
+					.textColor = WHITE_COLOR,
+					.fontId = 0,
+					.fontSize = fontSize,
+				});
 			clayMan.element({.layout = {.sizing = clayMan.expandX()}});
-			reusableElements.button("Complete");
+
+			func_t callback = [](const std::string elementID){
+				database.removeTodo(elementID);
+			};
+			reusableElements.button(std::to_string(todoID), "Complete", callback);
 		});
 	}
 	// each todo element is a line with complete button
@@ -85,7 +94,7 @@ struct ModularElements {
 	// last todo element should be a line with only add button
 	void EmptyTodoElement() {
 		clayMan.element({
-			.id = clayMan.hashID("todoContainer"),
+			.id = clayMan.hashID("emptyTodoContainer"),
 			.layout = {
 				.sizing = clayMan.expandXfixedY(50),
 				.padding = CLAY_PADDING_ALL(8),
@@ -94,8 +103,12 @@ struct ModularElements {
 			.backgroundColor = BACKGROUND_COLOR,
 			.cornerRadius = Clay_CornerRadius(4,4,4,4),
 		},[&](){
+			func_t callback = [](const std::string elementID){
+				database.insertTodo("New todo");
+			};
+
 			clayMan.element({.layout = {.sizing = clayMan.expandX()}});
-			reusableElements.button("Add");
+			reusableElements.button("Add", "", callback);
 		});
 	}
 
@@ -130,7 +143,7 @@ void mainLayout() {
 					.cornerRadius = Clay_CornerRadius{4,4,4,4},
 			},[&](){
 				// callback for switching the selected element
-				func_t callback = [](const std::string_view elementID){
+				func_t callback = [](const std::string elementID){
 					appData.selectedElement = elementID;
 					appData.animationPercentage = 0;
 				};
@@ -147,9 +160,10 @@ void mainLayout() {
 			clayMan.element( {
 					.id = clayMan.hashID("container"),
 					.layout = {
-						.sizing = {
-							.width = (Clay_SizingAxis { .size = { .percent = appData.animationPercentage }, .type = CLAY__SIZING_TYPE_PERCENT}),
-							.height = (Clay_SizingAxis { .size = { .minMax = {}}, .type = CLAY__SIZING_TYPE_GROW})},
+						// .sizing = {
+						// 	.width = (Clay_SizingAxis { .size = { .percent = appData.animationPercentage }, .type = CLAY__SIZING_TYPE_PERCENT}),
+							// .height = (Clay_SizingAxis { .size = { .minMax = {}}, .type = CLAY__SIZING_TYPE_GROW})},
+						.sizing = clayMan.expandXY(),
 						.padding = CLAY_PADDING_ALL(8),
 						.childGap = 8,
 						.layoutDirection = CLAY_TOP_TO_BOTTOM,
@@ -158,11 +172,17 @@ void mainLayout() {
 					.cornerRadius = Clay_CornerRadius{4,4,4,4},
 			},[&](){
 				// draw child elements if animation is finished
-				if (appData.isAnimationFinished()) {
+				// if (appData.isAnimationFinished()) {
 					if (appData.selectedElement == "Todo") {
-						modularElements.todoElement();
+						if (database.mRefresh) {
+							database.fetchTodoTable();
+						}
+						for (const auto& todo : todoList) {
+							modularElements.todoElement(todo.ID, todo.content, todo.completed);
+						}
+						modularElements.EmptyTodoElement();
 					}
-				}
+				// }
 			});
 		});
 }
