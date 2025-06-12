@@ -19,6 +19,7 @@ constexpr Clay_Color WHITE_COLOR{255,255,255,255};
 
 struct AppData {
 	std::string selectedElement;
+	std::string todoText;
 	float animationPercentage;
 	float animationSpeed{2};
 

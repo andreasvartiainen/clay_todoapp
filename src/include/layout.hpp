@@ -4,10 +4,10 @@
 #include "clayman.hpp"
 #include "config.hpp"
 #include "raylib/raylib.h"
-#include <algorithm>
+#include <cctype>
+#include <limits>
 #include <print>
 #include <string>
-#include <string_view>
 
 // function pointer type for callback parameter is elementID
 using func_t = void(*)(const std::string);
@@ -48,6 +48,14 @@ struct ReusableElements {
 		});
 	}
 
+	void textElement(const std::string text) {
+		clayMan.textElement(text, {
+			.textColor = WHITE_COLOR,
+			.fontId = 0,
+			.fontSize = fontSize,
+		});
+	}
+
 	private:
 		ReusableElements() = default;
 };
@@ -71,6 +79,7 @@ struct ModularElements {
 			.layout = {
 				.sizing = clayMan.expandXfixedY(50),
 				.padding = CLAY_PADDING_ALL(8),
+				.childAlignment = {.y = CLAY_ALIGN_Y_CENTER},
 				.layoutDirection = CLAY_LEFT_TO_RIGHT,
 			},
 			.backgroundColor = BACKGROUND_COLOR,
@@ -98,15 +107,35 @@ struct ModularElements {
 			.layout = {
 				.sizing = clayMan.expandXfixedY(50),
 				.padding = CLAY_PADDING_ALL(8),
+				.childAlignment = {.y = CLAY_ALIGN_Y_CENTER},
 				.layoutDirection = CLAY_LEFT_TO_RIGHT,
 			},
 			.backgroundColor = BACKGROUND_COLOR,
 			.cornerRadius = Clay_CornerRadius(4,4,4,4),
 		},[&](){
+			if (clayMan.pointerOver("emptyTodoContainer")) {
+				int keyPress = GetKeyPressed();
+				if (keyPress == KEY_BACKSPACE) {
+					if (!appData.todoText.empty()) {
+						appData.todoText.pop_back();
+					}
+				}
+				if (keyPress != 0 && keyPress < std::numeric_limits<char>::max()) {
+					if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+						appData.todoText.push_back(static_cast<char>(keyPress));
+					} else {
+						appData.todoText.push_back(static_cast<char>(tolower(keyPress)));
+					}
+				}
+				
+			}
+
 			func_t callback = [](const std::string elementID){
-				database.insertTodo("New todo");
+				database.insertTodo(appData.todoText);
+				appData.todoText.clear();
 			};
 
+			reusableElements.textElement(appData.todoText.empty() ? "Hover this and write to edit todo text." : appData.todoText);
 			clayMan.element({.layout = {.sizing = clayMan.expandX()}});
 			reusableElements.button("Add", "", callback);
 		});

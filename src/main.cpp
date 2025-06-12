@@ -1,11 +1,6 @@
 #include "config.hpp"
 #include "layout.hpp"
 
-#include <array>
-#include <cstdint>
-#include <functional>
-#include <iterator>
-#include <string>
 #include <print>
 
 //Your project's main entry
