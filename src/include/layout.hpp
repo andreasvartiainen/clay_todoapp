@@ -210,6 +210,7 @@ void mainLayout() {
 					},
 					.backgroundColor = FOREGROUND_COLOR,
 					.cornerRadius = Clay_CornerRadius{4,4,4,4},
+					.clip = {.vertical = true},
 			},[&](){
 				// draw child elements if animation is finished
 				// if (appData.isAnimationFinished()) {

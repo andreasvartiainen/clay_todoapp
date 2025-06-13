@@ -57,7 +57,7 @@ void initRaylib() {
 	Clay_Raylib_Initialize(
 		clayMan.getWindowWidth(), 
 		clayMan.getWindowHeight(), 
-		"My Mother Fucking Project", 
+		"Todo App Project", 
 		FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT
 	);
 
