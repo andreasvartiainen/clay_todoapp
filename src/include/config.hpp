@@ -15,6 +15,7 @@ constexpr Clay_Color FOREGROUND_COLOR{33,33,36,255};
 constexpr Clay_Color BUTTON_COLOR{106,41,41,255};
 constexpr Clay_Color HOVER_COLOR{134,51,51,255};
 constexpr Clay_Color SELECTED_COLOR{196,49,49,255};
+constexpr Clay_Color COMPLETED_COLOR{49,120,49,255};
 constexpr Clay_Color WHITE_COLOR{255,255,255,255};
 
 struct AppData {

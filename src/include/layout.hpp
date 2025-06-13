@@ -5,6 +5,7 @@
 #include "config.hpp"
 #include "raylib/raylib.h"
 #include <cctype>
+#include <format>
 #include <limits>
 #include <print>
 #include <string>
@@ -19,8 +20,9 @@ struct ReusableElements {
 	}
 
 	// param elementID, text, callback function
-	void button(const std::string elementID, const std::string text = "", func_t callback = nullptr) {;
-		bool overElement{clayMan.pointerOver(elementID)};
+	void button(std::string elementID, const std::string text = "", func_t callback = nullptr) {;
+		std::string interalID{std::format("{}_{}", elementID, text)};
+		bool overElement{clayMan.pointerOver(interalID)};
 		bool mousePressed{clayMan.mousePressed()};
 
 		if (overElement && mousePressed) {
@@ -31,7 +33,7 @@ struct ReusableElements {
 		}
 
 		clayMan.element({
-			.id = clayMan.hashID(elementID),
+			.id = clayMan.hashID(interalID),
 			.layout = {
 				.sizing = clayMan.expandYfixedX(80),
 				.padding = CLAY_PADDING_ALL(8),
@@ -79,10 +81,11 @@ struct ModularElements {
 			.layout = {
 				.sizing = clayMan.expandXfixedY(50),
 				.padding = CLAY_PADDING_ALL(8),
+				.childGap = 8,
 				.childAlignment = {.y = CLAY_ALIGN_Y_CENTER},
 				.layoutDirection = CLAY_LEFT_TO_RIGHT,
 			},
-			.backgroundColor = BACKGROUND_COLOR,
+			.backgroundColor = completed ? COMPLETED_COLOR : BACKGROUND_COLOR,
 			.cornerRadius = Clay_CornerRadius(4,4,4,4),
 		},[&](){
 				clayMan.textElement( todoMessage, {
@@ -95,7 +98,13 @@ struct ModularElements {
 			func_t callback = [](const std::string elementID){
 				database.removeTodo(elementID);
 			};
-			reusableElements.button(std::to_string(todoID), "Complete", callback);
+
+			func_t callbackComplete = [](const std::string elementID){
+				database.completeTodo(elementID);
+			};
+
+			reusableElements.button(std::to_string(todoID), "Delete", callback);
+			reusableElements.button(std::to_string(todoID), "Complete", callbackComplete);
 		});
 	}
 	// each todo element is a line with complete button
@@ -113,12 +122,20 @@ struct ModularElements {
 			.backgroundColor = BACKGROUND_COLOR,
 			.cornerRadius = Clay_CornerRadius(4,4,4,4),
 		},[&](){
+			func_t callback = [](const std::string elementID){
+				database.insertTodo(appData.todoText);
+				appData.todoText.clear();
+			};
+
 			if (clayMan.pointerOver("emptyTodoContainer")) {
 				int keyPress = GetKeyPressed();
 				if (keyPress == KEY_BACKSPACE) {
 					if (!appData.todoText.empty()) {
 						appData.todoText.pop_back();
 					}
+				}
+				if (keyPress == KEY_ENTER) {
+					callback("emptyTodoContainer");
 				}
 				if (keyPress != 0 && keyPress < std::numeric_limits<char>::max()) {
 					if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
@@ -129,12 +146,6 @@ struct ModularElements {
 				}
 				
 			}
-
-			func_t callback = [](const std::string elementID){
-				database.insertTodo(appData.todoText);
-				appData.todoText.clear();
-			};
-
 			reusableElements.textElement(appData.todoText.empty() ? "Hover this and write to edit todo text." : appData.todoText);
 			clayMan.element({.layout = {.sizing = clayMan.expandX()}});
 			reusableElements.button("Add", "", callback);

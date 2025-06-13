@@ -76,6 +76,16 @@ public:
 		return 0;
 	}
 
+	void completeTodo(std::string todoID) {
+		std::string sqlRequest{std::format("UPDATE todo SET completed = not completed WHERE rowid = {}", todoID)};
+		sqlite3_exec(mDB,sqlRequest.c_str(), nullptr, nullptr, &mErrorMsg);
+		if (mErrorMsg) {
+			sqlite3_close(mDB);
+			throw std::runtime_error(mErrorMsg);
+		}
+		mRefresh = true;
+	}
+
 	void removeTodo(std::string todoID) {
 		std::string sqlRequest{std::format("DELETE FROM todo WHERE rowid = {}", todoID)};
 		sqlite3_exec(mDB,sqlRequest.c_str(), nullptr, nullptr, &mErrorMsg);
